@@ -1,0 +1,14 @@
+{
+    "name": "Decor",
+    "description": "TODO",
+    "authors": [
+        {
+            "name": "Fiery",
+            "id": "890228870559698955"
+        }
+    ],
+    "main": "src/index.ts",
+    "vendetta": {
+        "icon": "ic_highlight"
+    }
+}
