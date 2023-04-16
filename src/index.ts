@@ -1,12 +1,11 @@
 import { findByProps, findByStoreName } from "@vendetta/metro";
-import { after, before } from "@vendetta/patcher";
+import { after } from "@vendetta/patcher";
+import { BASE_URL } from "./lib/constants";
+import { fetchUsers, users } from "./lib/users";
+import Settings from "./ui/pages/Settings";
 
 const UserStore = findByStoreName("UserStore");
 const ImageResolver = findByProps("getAvatarDecorationURL", "default");
-
-const BASE_URL = "https://decor.fieryflames.dev";
-
-let users: Map<string, string>;
 
 let patches = [];
 
@@ -24,9 +23,10 @@ export default {
             };
         }));
 
-        users = new Map(Object.entries(await fetch(BASE_URL + "/users.json").then((c) => c.json())));
+        await fetchUsers()
     },
     onUnload: () => {
         patches.forEach((unpatch) => unpatch());
     },
+    settings: Settings
 };
