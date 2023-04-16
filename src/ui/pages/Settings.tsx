@@ -5,6 +5,8 @@ import { showToast } from "@vendetta/ui/toasts";
 import { DISCORD_SERVER_INVITE } from "../../lib/constants";
 import { fetchUsers } from "../../lib/users";
 import { findByProps } from "@vendetta/metro";
+import { useProxy } from "@vendetta/storage";
+import { storage } from "@vendetta/plugin";
 
 const { ScrollView } = General;
 const { FormSection, FormRow } = Forms;
@@ -12,7 +14,8 @@ const { FormSection, FormRow } = Forms;
 const { triggerHapticFeedback, HapticFeedbackTypes } = findByProps("triggerHapticFeedback");
 
 export default function Settings() {
-    const [debug, setDebug] = React.useState(false)
+    useProxy(storage);
+
     return (<ScrollView>
         <FormSection>
             <FormRow
@@ -22,11 +25,11 @@ export default function Settings() {
                 onPress={() => url.openDeeplink(DISCORD_SERVER_INVITE)}
                 onLongPress={() => {
                     triggerHapticFeedback(HapticFeedbackTypes.IMPACT_LIGHT);
-                    setDebug(true);
+                    storage.debug = !storage.debug;
                 }}
             />
         </FormSection>
-        {debug &&
+        {storage.debug &&
             <FormSection title="Debug">
                 <FormRow
                     label="Reload Users Map"

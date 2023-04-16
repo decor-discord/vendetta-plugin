@@ -3,6 +3,7 @@ import { after } from "@vendetta/patcher";
 import { BASE_URL } from "./lib/constants";
 import { fetchUsers, users } from "./lib/users";
 import Settings from "./ui/pages/Settings";
+import { storage } from "@vendetta/plugin";
 
 const UserStore = findByStoreName("UserStore");
 const ImageResolver = findByProps("getAvatarDecorationURL", "default");
@@ -23,7 +24,9 @@ export default {
             };
         }));
 
-        await fetchUsers()
+        storage.debug ??= false;
+
+        await fetchUsers();
     },
     onUnload: () => {
         patches.forEach((unpatch) => unpatch());
