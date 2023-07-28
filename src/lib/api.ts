@@ -19,9 +19,9 @@ export interface Decoration {
 
 export interface NewDecoration {
 	uri: string;
-	fileType: string;
 	fileName: string;
-	alt: string;
+	fileType: string;
+	alt: string | null;
 }
 
 export const API_URL = BASE_URL + '/api';

@@ -7,6 +7,7 @@ import readFileAsBase64 from '../../lib/utils/readFileAsBase64';
 import AvatarDecorationPreviews from '../components/AvatarDecorationPreviews';
 import { useUserDecorationsStore } from '../stores/UserDecorationsStore';
 import Icon from '../components/Icon';
+import { NewDecoration } from '../../lib/api';
 
 const { ScrollView, View } = ReactNative;
 const { FormSection, FormRow, FormArrow, FormInput, FormDivider, FormHint } = Forms;
@@ -65,8 +66,14 @@ export default function CreateDecoration() {
 					onPress={async () => {
 						if (!asset) return;
 						// HACK: iOS strips animation when sending images with FormData
-						const dataUri = 'data:' + asset.type + ';base64,' + (await readFileAsBase64(asset.uri));
-						await createDecoration({ uri: dataUri, fileName: asset.fileName, fileType: asset.type, alt });
+						let uri: string;
+						if (ReactNative.Platform.OS === 'ios') {
+							uri = 'data:' + asset.type + ';base64,' + (await readFileAsBase64(asset.uri));
+						} else {
+							uri = asset.uri;
+						}
+
+						await createDecoration({ uri, fileName: asset.fileName, fileType: asset.type, alt });
 
 						popModal('create-decoration');
 					}}
