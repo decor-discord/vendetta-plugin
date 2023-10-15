@@ -9,7 +9,6 @@ import { storage } from '@vendetta/plugin';
 
 const UserStore = findByStoreName('UserStore');
 const ImageResolver = findByProps('getAvatarDecorationURL', 'default');
-// const { CollectiblesExperiment } = findByProps('useCollectiblesExperiment');
 const AvatarDecorationUtils = findByProps('isAnimatedAvatarDecoration');
 
 let patches = [];
@@ -43,14 +42,6 @@ export default {
 				if (ReactNative.Platform.OS === 'ios' && avatarDecoration?.asset?.startsWith('file://')) return true;
 			})
 		);
-
-		// patches.push(
-		// 	(() => {
-		// 		const oldVal = CollectiblesExperiment.getCurrentConfig().canUseAvatarDecorations;
-		// 		CollectiblesExperiment.getCurrentConfig().canUseAvatarDecorations = true;
-		// 		return () => (CollectiblesExperiment.getCurrentConfig().canUseAvatarDecorations = oldVal);
-		// 	})()
-		// );
 
 		storage.developerMode ??= false;
 
