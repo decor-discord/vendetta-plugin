@@ -31,9 +31,7 @@ const styles = stylesheet.createThemedStyleSheet({
 
 export default function AvatarDecorationPreviews({ decorationData }) {
 	const previewingDecoration = decorationData
-		? {
-				hash: decorationData
-		  }
+		? decorationData
 		: null;
 
 	return (
