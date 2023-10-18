@@ -1,11 +1,11 @@
 import { findByProps, findByStoreName } from '@vendetta/metro';
 import { ReactNative } from '@vendetta/metro/common';
 import { after } from '@vendetta/patcher';
-import { getUsers, users } from './lib/api';
-import { CDN_URL } from './lib/constants';
+import { CDN_URL, RAW_SKU_ID, SKU_ID } from './lib/constants';
 import Settings from './ui/pages/Settings';
-import { unsubscribeFromUserDecorationsStore } from './ui/stores/UserDecorationsStore';
-import { storage } from '@vendetta/plugin';
+import { unsubscribeFromCurrentUserDecorationsStore } from './lib/stores/CurrentUserDecorationsStore';
+import { subscriptions, useUsersDecorationsStore } from './lib/stores/UsersDecorationsStore';
+import { unsubscribe } from './lib/stores/AuthorizationStore';
 
 const UserStore = findByStoreName('UserStore');
 const ImageResolver = findByProps('getAvatarDecorationURL', 'default');
@@ -15,23 +15,37 @@ let patches = [];
 
 export default {
 	onLoad: async () => {
-		patches.push(unsubscribeFromUserDecorationsStore);
+		patches.push(unsubscribeFromCurrentUserDecorationsStore);
+		patches.push(unsubscribe);
+		patches.push(...subscriptions);
 		patches.push(
-			after('getUser', UserStore, (_, ret) => {
-				if (ret && !ret.avatarDecoration?.asset?.startsWith('decor_') && users?.has(ret.id)) ret.avatarDecoration = {
-					asset: `decor_${users?.get(ret.id)}`,
-					skuId: "0"
-				};
+			after('getUser', UserStore, (_, user) => {
+				const store = useUsersDecorationsStore.getState();
+
+				if (user && store.has(user.id)) {
+					const decoration = store.get(user.id);
+		
+					if (decoration && user.avatarDecoration?.skuId !== SKU_ID) {
+						user.avatarDecoration = {
+							asset: decoration,
+							skuId: SKU_ID
+						};
+					} else if (!decoration && user.avatarDecoration && user.avatarDecoration?.skuId === SKU_ID) {
+						user.avatarDecoration = null;
+					}
+		
+					user.avatarDecorationData = user.avatarDecoration;
+				}
 			})
 		);
 
 		patches.push(
 			after('getAvatarDecorationURL', ImageResolver, ([{ avatarDecoration, canAnimate }], _) => {
-				if (avatarDecoration?.asset?.startsWith('decor')) {
-					const parts = avatarDecoration.asset.split('_').slice(1);
-					if (!canAnimate && parts[0] === 'a') parts.shift();
-					return CDN_URL + `/${parts.join('_')}.png`;
-				} else if (avatarDecoration?.asset?.startsWith('file://')) {
+				if (avatarDecoration?.skuId === SKU_ID) {
+					const parts = avatarDecoration.asset.split("_");
+					if (!canAnimate && parts[0] === "a") parts.shift();
+					return CDN_URL + `/${parts.join("_")}.png`;
+				} else if (avatarDecoration?.skuId === RAW_SKU_ID) {
 					return avatarDecoration.asset;
 				}
 			})
@@ -42,10 +56,6 @@ export default {
 				if (ReactNative.Platform.OS === 'ios' && avatarDecoration?.asset?.startsWith('file://')) return true;
 			})
 		);
-
-		storage.developerMode ??= false;
-
-		getUsers();
 	},
 	onUnload: () => {
 		patches.forEach((unpatch) => unpatch());

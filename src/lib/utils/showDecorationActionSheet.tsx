@@ -2,7 +2,7 @@ import { findByProps, findByStoreName } from '@vendetta/metro';
 import { ReactNative } from '@vendetta/metro/common';
 import { showConfirmationAlert } from '@vendetta/ui/alerts';
 import { getAssetIDByName } from '@vendetta/ui/assets';
-import { useUserDecorationsStore } from '../../ui/stores/UserDecorationsStore';
+import { useCurrentUserDecorationsStore } from '../stores/CurrentUserDecorationsStore';
 import { Decoration } from '../api';
 import decorationToString from './decorationToString';
 
@@ -40,7 +40,7 @@ export default (decoration: Decoration) =>
 									confirmText: 'Delete',
 									cancelText: 'Cancel',
 									confirmColor: 'red' as ButtonColors.RED,
-									onConfirm: () => ReactNative.unstable_batchedUpdates(() => useUserDecorationsStore.getState().delete(decoration))
+									onConfirm: () => ReactNative.unstable_batchedUpdates(() => useCurrentUserDecorationsStore.getState().delete(decoration))
 								})
 						}
 				  ]

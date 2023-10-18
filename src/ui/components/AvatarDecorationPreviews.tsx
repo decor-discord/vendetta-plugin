@@ -29,22 +29,18 @@ const styles = stylesheet.createThemedStyleSheet({
 	}
 });
 
-export default function AvatarDecorationPreviews({ decorationData }) {
-	const previewingDecoration = decorationData
-		? decorationData
-		: null;
-
+export default function AvatarDecorationPreviews({ pendingAvatarDecoration }) {
 	return (
 		<View style={styles.container}>
 			<View style={styles.headerAvatarContainer}>
 				<HeaderAvatar
 					user={UserStore.getCurrentUser()}
-					pendingAvatarDecoration={previewingDecoration}
+					pendingAvatarDecoration={pendingAvatarDecoration}
 					size="editAvatarDecoration"
 					decorationStyle={{ margin: -12 }}
 				/>
 			</View>
-			<AvatarColumn pendingAvatarDecoration={previewingDecoration} />
+			<AvatarColumn pendingAvatarDecoration={pendingAvatarDecoration} />
 		</View>
 	);
 }

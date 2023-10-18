@@ -4,13 +4,15 @@ import { Forms } from '@vendetta/ui/components';
 import decorationToString from '../../lib/utils/decorationToString';
 import showCreateDecorationModal from '../../lib/utils/showCreateDecorationModal';
 import showDecorationActionSheet from '../../lib/utils/showDecorationActionSheet';
-import { useAuthorized } from '../hooks/useAuthorized';
-import { useUserDecorationsStore } from '../stores/UserDecorationsStore';
+import { useCurrentUserDecorationsStore } from '../../lib/stores/CurrentUserDecorationsStore';
 import AvatarDecorationPreviews from './AvatarDecorationPreviews';
 import CardButton from './CardButton';
 import DecorationCard from './DecorationCard';
 import Icon from './Icon';
 import Presets from '../pages/Presets';
+import { useAuthorizationStore } from '../../lib/stores/AuthorizationStore';
+import discordifyDecoration from '../../lib/utils/discordifyDecoration';
+import { showToast } from '@vendetta/ui/toasts';
 
 const { FlatList, View, ActivityIndicator } = ReactNative;
 const { FormTitle } = Forms;
@@ -23,12 +25,12 @@ export default function DecorationPicker() {
 		fetch: fetchUserDecorations,
 		clear: clearUserDecorations,
 		select: selectDecoration
-	} = useUserDecorationsStore();
+	} = useCurrentUserDecorationsStore();
 
-	const authorized = useAuthorized();
+	const { isAuthorized } = useAuthorizationStore();
 
 	React.useEffect(() => {
-		if (authorized) {
+		if (isAuthorized()) {
 			fetchUserDecorations()
 				.then(() => setLoading(false))
 				.catch((c) => setLoading(null));
@@ -37,13 +39,15 @@ export default function DecorationPicker() {
 			clearUserDecorations();
 			setLoading(false);
 		}
-	}, [authorized]);
+	}, [isAuthorized]);
 
 	const navigation = NavigationNative.useNavigation();
 
+	const hasPendingDecoration = decorations.some((decoration) => decoration.reviewed === false);
+
 	return (
 		<>
-			<AvatarDecorationPreviews decorationData={selectedDecoration ? decorationToString(selectedDecoration) : null} />
+			<AvatarDecorationPreviews pendingAvatarDecoration={selectedDecoration ? discordifyDecoration(selectedDecoration) : null} />
 			<FormTitle
 				title="Decorations"
 				icon={loading ? <ActivityIndicator /> : loading === null ? <Icon source={getAssetIDByName('ic_warning_24px')} /> : undefined}
@@ -52,7 +56,7 @@ export default function DecorationPicker() {
 				horizontal
 				showsHorizontalScrollIndicator={false}
 				data={decorations}
-				renderItem={({ item }) => <DecorationCard decoration={item} disabled={!authorized || loading === null} />}
+				renderItem={({ item }) => <DecorationCard decoration={item} disabled={!isAuthorized() || loading === null} />}
 				snapToInterval={74}
 				decelerationRate="fast"
 				ItemSeparatorComponent={() => <View style={{ width: 4 }} />}
@@ -63,7 +67,7 @@ export default function DecorationPicker() {
 						onPress={() => {
 							selectDecoration(null);
 						}}
-						disabled={!authorized || loading === null}
+						disabled={!isAuthorized() || loading === null}
 						selected={!selectedDecoration}
 					/>
 				)}
@@ -80,14 +84,16 @@ export default function DecorationPicker() {
 								});
 							}}
 							selected={selectedDecoration && selectedDecoration.presetId !== null}
-							disabled={!authorized || loading === null}
+							disabled={!isAuthorized() || loading === null}
 						/>
 						<View style={{ width: 4 }} />
 						<CardButton
 							source={getAssetIDByName('ic_add_24px')}
 							label="New.."
-							onPress={showCreateDecorationModal}
-							disabled={!authorized || loading === null}
+							onPress={!hasPendingDecoration ? showCreateDecorationModal : () => showToast('You already have a decoration pending review!', getAssetIDByName('img_none'))}
+							lookDisabled={hasPendingDecoration}
+							disabled={!isAuthorized() || loading === null}
+						
 						/>
 					</View>
 				)}

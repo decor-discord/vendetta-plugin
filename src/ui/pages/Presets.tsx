@@ -1,4 +1,4 @@
-import { NavigationNative, ReactNative, React } from '@vendetta/metro/common';
+import { ReactNative, React } from '@vendetta/metro/common';
 import { Preset as PresetInterface, getPresets } from '../../lib/api';
 import Preset from '../components/Preset';
 

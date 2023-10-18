@@ -1,11 +1,12 @@
-import { storage } from '@vendetta/plugin';
-import { BASE_URL } from './constants';
+import { API_URL } from './constants';
+import { useAuthorizationStore } from './stores/AuthorizationStore';
 
 export interface Preset {
-	id: string;
-	name: string;
-	description: string | null;
-	decorations: Decoration[];
+    id: string;
+    name: string;
+    description: string | null;
+    decorations: Decoration[];
+    authorIds: string[];
 }
 
 export interface Decoration {
@@ -24,19 +25,19 @@ export interface NewDecoration {
 	alt: string | null;
 }
 
-export const API_URL = BASE_URL + '/api';
+export async function cFetch(url: RequestInfo, options?: RequestInit) {
+    const res = await fetch(url, { ...options, headers: { ...options?.headers, Authorization: `Bearer ${useAuthorizationStore.getState().token}` } });
 
-export let users: Map<string, string>;
+    if (res.ok) return res;
+    else throw new Error(await res.text());
+}
 
-export const isAuthorized = () => !!storage.token;
+export const getUsersDecorations = async (ids: string[] | undefined = undefined) => {
+    const url = new URL(API_URL + "/users");
+    if (ids && ids.length !== 0) url.searchParams.set("ids", JSON.stringify(ids));
 
-export const cFetch = (url: RequestInfo, options?: RequestInit) =>
-	fetch(url, { ...options, headers: { ...options?.headers, Authorization: `Bearer ${storage.token}` } }).then((c) =>
-		c.ok ? c : Promise.reject(c)
-	);
-
-export const getUsers = async (cache: RequestCache = 'default') =>
-	(users = new Map(Object.entries(await fetch(API_URL + '/users', { cache }).then((c) => c.json()))));
+    return (await fetch(url).then(c => c.json())) as Record<string, string | null>;
+};
 
 export const getUserDecorations = async (id: string = '@me'): Promise<Decoration[]> =>
 	cFetch(API_URL + `/users/${id}/decorations`).then((c) => c.json());

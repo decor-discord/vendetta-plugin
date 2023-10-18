@@ -1,14 +1,14 @@
 import { findByName, findByProps, findByStoreName } from '@vendetta/metro';
 import { FluxDispatcher, lodash } from '@vendetta/metro/common';
-import { Decoration, NewDecoration, deleteDecoration, getUserDecoration, getUserDecorations, setUserDecoration } from '../../lib/api';
-import decorationToString from '../../lib/utils/decorationToString';
+import { Decoration, NewDecoration, deleteDecoration, getUserDecoration, getUserDecorations, setUserDecoration } from '../api';
+import decorationToString from '../utils/decorationToString';
 
 const create = findByName('create') as typeof import('zustand').default;
 const { subscribeWithSelector } = findByProps('subscribeWithSelector') as typeof import('zustand/middleware');
 
 const UserStore = findByStoreName('UserStore');
 
-interface UserDecorationsState {
+interface CurrentUserDecorationsState {
 	decorations: Decoration[];
 	selectedDecoration: Decoration | null;
 	fetched: boolean;
@@ -19,8 +19,8 @@ interface UserDecorationsState {
 	clear: () => void;
 }
 
-export const useUserDecorationsStore = create(
-	subscribeWithSelector<UserDecorationsState>((set, get) => ({
+export const useCurrentUserDecorationsStore = create(
+	subscribeWithSelector<CurrentUserDecorationsState>((set, get) => ({
 		decorations: [],
 		selectedDecoration: null,
 		fetched: false,
@@ -34,7 +34,7 @@ export const useUserDecorationsStore = create(
 			await deleteDecoration(hash);
 
 			const { selectedDecoration, decorations } = get();
-			let newState: Record<string, any> = { decorations: decorations.filter((d) => d.hash !== hash) };
+			let newState: any = { decorations: decorations.filter((d) => d.hash !== hash) };
 			if (selectedDecoration?.hash === hash) newState.selectedDecoration = null;
 
 			set(newState);
@@ -46,7 +46,7 @@ export const useUserDecorationsStore = create(
 	}))
 );
 
-export const unsubscribeFromUserDecorationsStore = useUserDecorationsStore.subscribe(
+export const unsubscribeFromCurrentUserDecorationsStore = useCurrentUserDecorationsStore.subscribe(
 	(state) => [state.selectedDecoration, state.fetched],
 	lodash.debounce(([decoration, fetched], [prevDecoration, prevFetched]) => {
 		if (fetched !== prevFetched || decoration?.hash === prevDecoration?.hash) return;

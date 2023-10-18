@@ -37,8 +37,8 @@ devDependencies:
     specifier: ^2.4.20
     version: 2.4.20
   zustand:
-    specifier: ^4.3.9
-    version: 4.3.9
+    specifier: ^3.7.2
+    version: 3.7.2
 
 packages:
 
@@ -723,15 +723,6 @@ packages:
     resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
     dev: false
 
-  /use-sync-external-store@1.2.0:
-    resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    peerDependenciesMeta:
-      react:
-        optional: true
-    dev: true
-
   /vendetta-types@2.4.20:
     resolution: {integrity: sha512-qILg8Zxm8S3VqzEPTO3Of6lpB7tQDd3xKbYB14fP4G/n86GCiU4cONTPmW1Ql0cC52s2CmluqKvx97zSLdOe3g==}
     dependencies:
@@ -751,17 +742,12 @@ packages:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
     dev: true
 
-  /zustand@4.3.9:
-    resolution: {integrity: sha512-Tat5r8jOMG1Vcsj8uldMyqYKC5IZvQif8zetmLHs9WoZlntTHmIoNM8TpLRY31ExncuUvUOXehd0kvahkuHjDw==}
+  /zustand@3.7.2:
+    resolution: {integrity: sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==}
     engines: {node: '>=12.7.0'}
     peerDependencies:
-      immer: '>=9.0'
       react: '>=16.8'
     peerDependenciesMeta:
-      immer:
-        optional: true
       react:
         optional: true
-    dependencies:
-      use-sync-external-store: 1.2.0
     dev: true

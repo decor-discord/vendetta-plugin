@@ -1,6 +1,3 @@
 import { Decoration } from '../api';
 
-export default (decoration: Decoration) => ({
-    asset: `decor_${decoration.animated ? 'a_' : ''}${decoration.hash}`,
-    skuId: "0"
-});
+export default (decoration: Decoration) => `${decoration.animated ? 'a_' : ''}${decoration.hash}`;
