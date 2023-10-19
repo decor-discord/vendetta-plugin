@@ -5,6 +5,7 @@ import { getAssetIDByName } from '@vendetta/ui/assets';
 import { useCurrentUserDecorationsStore } from '../stores/CurrentUserDecorationsStore';
 import { Decoration } from '../api';
 import decorationToString from './decorationToString';
+import discordifyDecoration from './discordifyDecoration';
 
 const ImageResolver = findByProps('getAvatarDecorationURL', 'default');
 const { showSimpleActionSheet } = findByProps('showSimpleActionSheet');
@@ -20,7 +21,7 @@ export default (decoration: Decoration) =>
 			title: decoration.alt ?? 'Decoration',
 			icon: (
 				<Image
-					source={{ uri: ImageResolver.getAvatarDecorationURL({ avatarDecoration: decorationToString(decoration) }) }}
+					source={{ uri: ImageResolver.getAvatarDecorationURL({ avatarDecoration: discordifyDecoration(decoration) }) }}
 					style={{ width: 24, height: 24, marginRight: 8 }}
 				/>
 			),

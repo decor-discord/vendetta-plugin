@@ -2,6 +2,8 @@ import { findByName, findByProps, findByStoreName } from '@vendetta/metro';
 import { FluxDispatcher, lodash } from '@vendetta/metro/common';
 import { Decoration, NewDecoration, deleteDecoration, getUserDecoration, getUserDecorations, setUserDecoration } from '../api';
 import decorationToString from '../utils/decorationToString';
+import { useUsersDecorationsStore } from './UsersDecorationsStore';
+import discordifyDecoration from '../utils/discordifyDecoration';
 
 const create = findByName('create') as typeof import('zustand').default;
 const { subscribeWithSelector } = findByProps('subscribeWithSelector') as typeof import('zustand/middleware');
@@ -17,6 +19,16 @@ interface CurrentUserDecorationsState {
 	create: (decoration: NewDecoration) => Promise<void>;
 	select: (decoration: Decoration | null) => Promise<void>;
 	clear: () => void;
+}
+
+function updateCurrentUserAvatarDecoration(decoration: Decoration | null) {
+    const user = UserStore.getCurrentUser();
+    user.avatarDecoration = decoration ? discordifyDecoration(decoration) : null;
+    user.avatarDecorationData = user.avatarDecoration;
+
+    useUsersDecorationsStore.getState().set(user.id, decoration ? decorationToString(decoration) : null);
+    FluxDispatcher.dispatch({ type: "CURRENT_USER_UPDATE", user });
+    FluxDispatcher.dispatch({ type: "USER_SETTINGS_ACCOUNT_SUBMIT_SUCCESS" });
 }
 
 export const useCurrentUserDecorationsStore = create(
@@ -53,8 +65,6 @@ export const unsubscribeFromCurrentUserDecorationsStore = useCurrentUserDecorati
 
 		setUserDecoration(decoration);
 
-		const user = UserStore.getCurrentUser();
-		user.avatarDecoration = decoration ? decorationToString(decoration) : null;
-		FluxDispatcher.dispatch({ type: 'USER_UPDATE', user });
+		updateCurrentUserAvatarDecoration(decoration)
 	}, 1000)
 );
