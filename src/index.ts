@@ -1,6 +1,6 @@
 import { findByProps, findByStoreName } from '@vendetta/metro';
 import { ReactNative } from '@vendetta/metro/common';
-import { after } from '@vendetta/patcher';
+import { after, before, instead } from '@vendetta/patcher';
 import { CDN_URL, RAW_SKU_ID, SKU_ID } from './lib/constants';
 import Settings from './ui/pages/Settings';
 import { unsubscribeFromCurrentUserDecorationsStore } from './lib/stores/CurrentUserDecorationsStore';
@@ -40,13 +40,16 @@ export default {
 		);
 
 		patches.push(
-			after('getAvatarDecorationURL', ImageResolver, ([{ avatarDecoration, canAnimate }], _) => {
+			instead('getAvatarDecorationURL', ImageResolver, (args, orig) => {
+				const [{avatarDecoration, canAnimate}] = args;
 				if (avatarDecoration?.skuId === SKU_ID) {
 					const parts = avatarDecoration.asset.split("_");
 					if (!canAnimate && parts[0] === "a") parts.shift();
 					return CDN_URL + `/${parts.join("_")}.png`;
 				} else if (avatarDecoration?.skuId === RAW_SKU_ID) {
 					return avatarDecoration.asset;
+				} else {
+					return orig(...args);
 				}
 			})
 		);
