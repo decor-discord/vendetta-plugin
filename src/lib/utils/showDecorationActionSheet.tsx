@@ -34,7 +34,7 @@ export default (decoration: Decoration) =>
 				label: 'Copy Decoration Hash',
 				onPress: () => {
 					clipboard.setString(decoration.hash);
-					showToast('Copied!', getAssetIDByName('toast_copy_message'));
+					showToast('Copied Decoration Hash!', getAssetIDByName('toast_copy_message'));
 				}
 			},
 			...(decoration.authorId === UserStore.getCurrentUser().id
