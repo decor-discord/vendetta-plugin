@@ -21,7 +21,7 @@ const { TextStyleSheet, Text } = findByProps('TextStyleSheet');
 const UserStore = findByStoreName('UserStore');
 const Parser = findByProps('parse', 'parseToAST');
 const { showUserProfile } = findByProps('showUserProfile');
-const { fetchProfile } = findByProps('fetchProfile');
+const UserUtils = findByProps('getUser', 'fetchCurrentUser');
 
 export default function DecorationPicker() {
 	const [loading, setLoading] = React.useState<boolean | null>(false);
@@ -70,7 +70,9 @@ export default function DecorationPicker() {
 							onPress={() =>
 								UserStore.getUser(selectedDecoration.authorId)
 									? showUserProfile({ userId: selectedDecoration.authorId })
-									: fetchProfile(selectedDecoration.authorId).then(() => showUserProfile({ userId: selectedDecoration.authorId }))
+									: UserUtils.getUser(selectedDecoration.authorId).then(() =>
+											showUserProfile({ userId: selectedDecoration.authorId })
+									  )
 							}
 							pointerEvents="box-only"
 							style={{ flexGrow: 0, flexShrink: 0 }}

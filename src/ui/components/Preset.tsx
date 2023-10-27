@@ -22,8 +22,7 @@ const styles = stylesheet.createThemedStyleSheet({
 	}
 });
 
-const { fetchProfile } = findByProps('fetchProfile');
-
+const UserUtils = findByProps('getUser', 'fetchCurrentUser');
 const UserStore = findByStoreName('UserStore');
 
 const defaultAvatars = [
@@ -54,9 +53,6 @@ function renderAvatar({ user, id }) {
 	}
 }
 
-// TODO do this the Fiery way (use like a store or something idk)
-const hasFetchedBefore = {};
-
 export default function Preset({ preset }: { preset: Preset }) {
 	const select = useCurrentUserDecorationsStore((state) => state.select);
 	const navigation = NavigationNative.useNavigation();
@@ -73,10 +69,7 @@ export default function Preset({ preset }: { preset: Preset }) {
 								const user = UserStore.getUser(id);
 
 								// Hopefully next time the user will be fetched
-								if (!user && !hasFetchedBefore[id]) {
-									hasFetchedBefore[id] = true;
-									fetchProfile(id);
-								}
+								if (!user) UserUtils.getUser(id);
 
 								return { user, id };
 							})}
