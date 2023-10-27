@@ -13,11 +13,12 @@ import discordifyDecoration from '../../lib/utils/discordifyDecoration';
 import { showToast } from '@vendetta/ui/toasts';
 import { Preset as PresetInterface, getPresets } from '../../lib/api';
 import { findByProps } from '@vendetta/metro';
-import { SmartMention } from '@nexpid/vdp-shared';
 
 const { FlatList, View, ActivityIndicator } = ReactNative;
 const { FormTitle } = Forms;
 const { TextStyleSheet, Text } = findByProps('TextStyleSheet');
+
+const Parser = findByProps('parse', 'parseToAST');
 
 export default function DecorationPicker() {
 	const [loading, setLoading] = React.useState<boolean | null>(false);
@@ -60,10 +61,7 @@ export default function DecorationPicker() {
 				<View style={{ marginTop: 12, paddingHorizontal: 16, gap: 8 }}>
 					<Text style={TextStyleSheet['text-lg/semibold']}>{selectedDecoration.alt}</Text>
 					{decorPreset && <Text style={TextStyleSheet['eyebrow']}>Part of the {decorPreset.name} Preset</Text>}
-					<Text style={TextStyleSheet['text-md/normal']}>
-						Created by{' '}
-						<SmartMention userId={selectedDecoration.authorId} loadUsername={true} key={`createdBy-${selectedDecoration.authorId}`} />
-					</Text>
+					<Text style={TextStyleSheet['text-md/normal']}>Created by {Parser.parse(`<@${selectedDecoration.authorId}>`)}</Text>
 				</View>
 			)}
 			<FormTitle
