@@ -12,13 +12,16 @@ import { useAuthorizationStore } from '../../lib/stores/AuthorizationStore';
 import discordifyDecoration from '../../lib/utils/discordifyDecoration';
 import { showToast } from '@vendetta/ui/toasts';
 import { Preset as PresetInterface, getPresets } from '../../lib/api';
-import { findByProps } from '@vendetta/metro';
+import { findByProps, findByStoreName } from '@vendetta/metro';
 
-const { FlatList, View, ActivityIndicator } = ReactNative;
+const { FlatList, View, ActivityIndicator, Pressable } = ReactNative;
 const { FormTitle } = Forms;
 const { TextStyleSheet, Text } = findByProps('TextStyleSheet');
 
+const UserStore = findByStoreName('UserStore');
 const Parser = findByProps('parse', 'parseToAST');
+const { showUserProfile } = findByProps('showUserProfile');
+const { fetchProfile } = findByProps('fetchProfile');
 
 export default function DecorationPicker() {
 	const [loading, setLoading] = React.useState<boolean | null>(false);
@@ -61,7 +64,20 @@ export default function DecorationPicker() {
 				<View style={{ marginTop: 12, paddingHorizontal: 16, gap: 8 }}>
 					<Text style={TextStyleSheet['text-lg/semibold']}>{selectedDecoration.alt}</Text>
 					{decorPreset && <Text style={TextStyleSheet['eyebrow']}>Part of the {decorPreset.name} Preset</Text>}
-					<Text style={TextStyleSheet['text-md/normal']}>Created by {Parser.parse(`<@${selectedDecoration.authorId}>`)}</Text>
+					<Text style={TextStyleSheet['text-md/normal']}>
+						Created by{' '}
+						<Pressable
+							onPress={() =>
+								UserStore.getUser(selectedDecoration.authorId)
+									? showUserProfile({ userId: selectedDecoration.authorId })
+									: fetchProfile(selectedDecoration.authorId).then(() => showUserProfile({ userId: selectedDecoration.authorId }))
+							}
+							pointerEvents="box-only"
+							style={{ flexGrow: 0, flexShrink: 0 }}
+						>
+							{Parser.parse(`<@${selectedDecoration.authorId}>`, true)}
+						</Pressable>
+					</Text>
 				</View>
 			)}
 			<FormTitle
