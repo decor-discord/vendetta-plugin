@@ -34,12 +34,10 @@ const defaultAvatars = [
 	getAssetIDByName('default_avatar_5')
 ];
 
-// Make this return default avatars for null users
 function renderAvatar({ user, id }) {
 	if (user) return <Avatar user={user} size="size16" />;
 	else {
 		const defaultAvatarIndex = Number((BigInt(id) >> 22n) % 6n);
-		console.log(id, defaultAvatarIndex);
 		return (
 			<Image
 				source={defaultAvatars[defaultAvatarIndex]}
