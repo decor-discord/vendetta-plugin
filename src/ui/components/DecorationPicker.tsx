@@ -1,9 +1,7 @@
 import { NavigationNative, React, ReactNative } from '@vendetta/metro/common';
 import { getAssetIDByName } from '@vendetta/ui/assets';
 import { Forms } from '@vendetta/ui/components';
-import decorationToString from '../../lib/utils/decorationToString';
 import showCreateDecorationModal from '../../lib/utils/showCreateDecorationModal';
-import showDecorationActionSheet from '../../lib/utils/showDecorationActionSheet';
 import { useCurrentUserDecorationsStore } from '../../lib/stores/CurrentUserDecorationsStore';
 import AvatarDecorationPreviews from './AvatarDecorationPreviews';
 import CardButton from './CardButton';
@@ -13,12 +11,21 @@ import Presets from '../pages/Presets';
 import { useAuthorizationStore } from '../../lib/stores/AuthorizationStore';
 import discordifyDecoration from '../../lib/utils/discordifyDecoration';
 import { showToast } from '@vendetta/ui/toasts';
+import { Preset as PresetInterface, getPresets } from '../../lib/api';
+import { findByProps, findByStoreName } from '@vendetta/metro';
 
-const { FlatList, View, ActivityIndicator } = ReactNative;
+const { FlatList, View, ActivityIndicator, Pressable } = ReactNative;
 const { FormTitle } = Forms;
+const { TextStyleSheet, Text } = findByProps('TextStyleSheet');
+
+const UserStore = findByStoreName('UserStore');
+const Parser = findByProps('parse', 'parseToAST');
+const { showUserProfile } = findByProps('showUserProfile');
+const UserUtils = findByProps('getUser', 'fetchCurrentUser');
 
 export default function DecorationPicker() {
 	const [loading, setLoading] = React.useState<boolean | null>(false);
+	const [presets, setPresets] = React.useState<PresetInterface[]>([]);
 	const {
 		decorations,
 		selectedDecoration,
@@ -31,9 +38,12 @@ export default function DecorationPicker() {
 
 	React.useEffect(() => {
 		if (isAuthorized()) {
+			getPresets()
+				.then((presets) => setPresets(presets))
+				.catch(() => void 0);
 			fetchUserDecorations()
 				.then(() => setLoading(false))
-				.catch((c) => setLoading(null));
+				.catch(() => setLoading(null));
 			setLoading(true);
 		} else {
 			clearUserDecorations();
@@ -45,9 +55,33 @@ export default function DecorationPicker() {
 
 	const hasPendingDecoration = decorations.some((decoration) => decoration.reviewed === false);
 
+	const decorPreset = presets && selectedDecoration && presets.find((preset) => preset.id === selectedDecoration.presetId);
+
 	return (
 		<>
 			<AvatarDecorationPreviews pendingAvatarDecoration={selectedDecoration ? discordifyDecoration(selectedDecoration) : null} />
+			{selectedDecoration && (
+				<View style={{ marginTop: 12, paddingHorizontal: 16, gap: 8 }}>
+					<Text style={TextStyleSheet['text-lg/semibold']}>{selectedDecoration.alt}</Text>
+					{decorPreset && <Text style={TextStyleSheet['eyebrow']}>Part of the {decorPreset.name} Preset</Text>}
+					<Text style={TextStyleSheet['text-md/normal']}>
+						Created by{' '}
+						<Pressable
+							onPress={() =>
+								UserStore.getUser(selectedDecoration.authorId)
+									? showUserProfile({ userId: selectedDecoration.authorId })
+									: UserUtils.getUser(selectedDecoration.authorId).then(() =>
+											showUserProfile({ userId: selectedDecoration.authorId })
+									  )
+							}
+							pointerEvents="box-only"
+							style={{ flexGrow: 0, flexShrink: 0 }}
+						>
+							{Parser.parse(`<@${selectedDecoration.authorId}>`, true)}
+						</Pressable>
+					</Text>
+				</View>
+			)}
 			<FormTitle
 				title="Decorations"
 				icon={loading ? <ActivityIndicator /> : loading === null ? <Icon source={getAssetIDByName('ic_warning_24px')} /> : undefined}
@@ -90,10 +124,13 @@ export default function DecorationPicker() {
 						<CardButton
 							source={getAssetIDByName('ic_add_24px')}
 							label="New.."
-							onPress={!hasPendingDecoration ? showCreateDecorationModal : () => showToast('You already have a decoration pending review!', getAssetIDByName('img_none'))}
+							onPress={
+								!hasPendingDecoration
+									? showCreateDecorationModal
+									: () => showToast('You already have a decoration pending review!', getAssetIDByName('img_none'))
+							}
 							lookDisabled={hasPendingDecoration}
 							disabled={!isAuthorized() || loading === null}
-						
 						/>
 					</View>
 				)}

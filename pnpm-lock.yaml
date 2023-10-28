@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   '@swc/helpers':
     specifier: ^0.4.14
@@ -34,8 +38,8 @@ devDependencies:
     specifier: ^5.0.0
     version: 5.0.0(esbuild@0.16.14)(rollup@3.9.1)
   vendetta-types:
-    specifier: ^2.4.20
-    version: 2.4.20
+    specifier: ^2.4.21
+    version: 2.4.21
   zustand:
     specifier: ^3.7.2
     version: 3.7.2
@@ -723,8 +727,8 @@ packages:
     resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
     dev: false
 
-  /vendetta-types@2.4.20:
-    resolution: {integrity: sha512-qILg8Zxm8S3VqzEPTO3Of6lpB7tQDd3xKbYB14fP4G/n86GCiU4cONTPmW1Ql0cC52s2CmluqKvx97zSLdOe3g==}
+  /vendetta-types@2.4.21:
+    resolution: {integrity: sha512-L2HwBkF4DCF0Kiov8Ld75Zwl5UBy75ZC8ZPpXtpQgvuHsYbhHAtrhWrpzAf76VGV9k5J1nC5JcxUZQ+f7NjRGw==}
     dependencies:
       '@react-native-clipboard/clipboard': 1.10.0
       '@types/chroma-js': 2.4.0

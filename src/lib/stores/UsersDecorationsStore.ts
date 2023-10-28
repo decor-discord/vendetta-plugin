@@ -9,8 +9,10 @@ import { getUsersDecorations } from "../api";
 import { SKU_ID } from "../constants";
 import { create } from "../zustand";
 import { findByStoreName } from "@vendetta/metro";
+import subscribeToFluxDispatcher from "../utils/subscribeToFluxDispatcher";
 
 const UserStore = findByStoreName('UserStore');
+const SelectedChannelStore = findByStoreName('SelectedChannelStore');
 
 interface UsersDecorationsState {
     usersDecorations: Map<string, string | null>;
@@ -85,8 +87,23 @@ export const useUsersDecorationsStore = create<UsersDecorationsState>((set, get)
     }
 }));
 
-export const subscriptions = []
-
-subscriptions.push(FluxDispatcher.subscribe("LOAD_MESSAGES_SUCCESS", ({ messages }) => {
-    useUsersDecorationsStore.getState().fetchMany(messages.map(m => m.author.id));
-}))
+export const subscriptions = [
+    subscribeToFluxDispatcher("LOAD_MESSAGES_SUCCESS", ({ messages }) => {
+        useUsersDecorationsStore.getState().fetchMany(messages.map(m => m.author.id));
+    }),
+    subscribeToFluxDispatcher("CONNECTION_OPEN", () => {
+        useUsersDecorationsStore.getState().fetch(UserStore.getCurrentUser().id, true);
+    }),
+    subscribeToFluxDispatcher("MESSAGE_CREATE", (data) => {
+        const channelId = SelectedChannelStore.getChannelId();
+        if (data.channelId === channelId) {
+            useUsersDecorationsStore.getState().fetch(data.message.author.id);
+        }
+    }),
+    subscribeToFluxDispatcher("TYPING_START", (data) => {
+        const channelId = SelectedChannelStore.getChannelId();
+        if (data.channelId === channelId) {
+            useUsersDecorationsStore.getState().fetch(data.userId);
+        }
+    })
+]

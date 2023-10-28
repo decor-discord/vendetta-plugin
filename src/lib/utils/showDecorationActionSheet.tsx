@@ -1,11 +1,12 @@
 import { findByProps, findByStoreName } from '@vendetta/metro';
-import { ReactNative } from '@vendetta/metro/common';
+import { ReactNative, clipboard } from '@vendetta/metro/common';
 import { showConfirmationAlert } from '@vendetta/ui/alerts';
 import { getAssetIDByName } from '@vendetta/ui/assets';
 import { useCurrentUserDecorationsStore } from '../stores/CurrentUserDecorationsStore';
 import { Decoration } from '../api';
 import decorationToString from './decorationToString';
 import discordifyDecoration from './discordifyDecoration';
+import { showToast } from '@vendetta/ui/toasts';
 
 const ImageResolver = findByProps('getAvatarDecorationURL', 'default');
 const { showSimpleActionSheet } = findByProps('showSimpleActionSheet');
@@ -28,6 +29,14 @@ export default (decoration: Decoration) =>
 			onClose: () => hideActionSheet()
 		},
 		options: [
+			{
+				icon: getAssetIDByName('ic_message_copy'),
+				label: 'Copy Decoration Hash',
+				onPress: () => {
+					clipboard.setString(decoration.hash);
+					showToast('Copied Decoration Hash!', getAssetIDByName('toast_copy_message'));
+				}
+			},
 			...(decoration.authorId === UserStore.getCurrentUser().id
 				? [
 						{
@@ -41,7 +50,8 @@ export default (decoration: Decoration) =>
 									confirmText: 'Delete',
 									cancelText: 'Cancel',
 									confirmColor: 'red' as ButtonColors.RED,
-									onConfirm: () => ReactNative.unstable_batchedUpdates(() => useCurrentUserDecorationsStore.getState().delete(decoration))
+									onConfirm: () =>
+										ReactNative.unstable_batchedUpdates(() => useCurrentUserDecorationsStore.getState().delete(decoration))
 								})
 						}
 				  ]
