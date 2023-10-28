@@ -4,6 +4,7 @@ import { Decoration, NewDecoration, deleteDecoration, getUserDecoration, getUser
 import decorationToString from '../utils/decorationToString';
 import { useUsersDecorationsStore } from './UsersDecorationsStore';
 import discordifyDecoration from '../utils/discordifyDecoration';
+import subscribeToFluxDispatcher from '../utils/subscribeToFluxDispatcher';
 
 const create = findByName('create') as typeof import('zustand').default;
 const { subscribeWithSelector } = findByProps('subscribeWithSelector') as typeof import('zustand/middleware');
@@ -58,13 +59,16 @@ export const useCurrentUserDecorationsStore = create(
 	}))
 );
 
-export const unsubscribeFromCurrentUserDecorationsStore = useCurrentUserDecorationsStore.subscribe(
-	(state) => [state.selectedDecoration, state.fetched],
-	lodash.debounce(([decoration, fetched], [prevDecoration, prevFetched]) => {
-		if (fetched !== prevFetched || decoration?.hash === prevDecoration?.hash) return;
-
-		setUserDecoration(decoration);
-
-		updateCurrentUserAvatarDecoration(decoration)
-	}, 1000)
-);
+export const subscriptions = [
+	useCurrentUserDecorationsStore.subscribe(
+		(state) => [state.selectedDecoration, state.fetched],
+		lodash.debounce(([decoration, fetched], [prevDecoration, prevFetched]) => {
+			if (fetched !== prevFetched || decoration?.hash === prevDecoration?.hash) return;
+	
+			setUserDecoration(decoration);
+	
+			updateCurrentUserAvatarDecoration(decoration)
+		}, 1000)
+	),
+	subscribeToFluxDispatcher('CONNECTION_OPEN', () => useCurrentUserDecorationsStore.getState().clear())
+]

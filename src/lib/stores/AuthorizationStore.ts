@@ -8,6 +8,7 @@ import { findByName, findByStoreName } from "@vendetta/metro";
 import { FluxDispatcher, ReactNative } from "@vendetta/metro/common";
 import { id } from "@vendetta/plugin";
 import { create } from "../zustand";
+import subscribeToFluxDispatcher from "../utils/subscribeToFluxDispatcher";
 
 const MMKVManager = ReactNative.NativeModules.MMKVManager as StateStorage;
 
@@ -39,4 +40,4 @@ export const useAuthorizationStore = create<AuthorizationState>(
     )
 );
 
-export const unsubscribe = FluxDispatcher.subscribe('CONNECTION_OPEN', () => useAuthorizationStore.getState().init())
+export const unsubscribe = subscribeToFluxDispatcher('CONNECTION_OPEN', () => useAuthorizationStore.getState().init())

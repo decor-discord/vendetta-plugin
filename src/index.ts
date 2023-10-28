@@ -3,8 +3,8 @@ import { ReactNative } from '@vendetta/metro/common';
 import { after, before, instead } from '@vendetta/patcher';
 import { CDN_URL, RAW_SKU_ID, SKU_ID } from './lib/constants';
 import Settings from './ui/pages/Settings';
-import { unsubscribeFromCurrentUserDecorationsStore } from './lib/stores/CurrentUserDecorationsStore';
-import { subscriptions, useUsersDecorationsStore } from './lib/stores/UsersDecorationsStore';
+import { subscriptions as CurrentUserDecorationsStoreSubscriptions } from './lib/stores/CurrentUserDecorationsStore';
+import { subscriptions as UserDecorationsStoreSubscriptions, useUsersDecorationsStore } from './lib/stores/UsersDecorationsStore';
 import { unsubscribe } from './lib/stores/AuthorizationStore';
 
 const UserStore = findByStoreName('UserStore');
@@ -15,9 +15,10 @@ let patches = [];
 
 export default {
 	onLoad: async () => {
-		patches.push(unsubscribeFromCurrentUserDecorationsStore);
 		patches.push(unsubscribe);
-		patches.push(...subscriptions);
+		patches.push(...UserDecorationsStoreSubscriptions);
+		patches.push(...CurrentUserDecorationsStoreSubscriptions);
+		
 		patches.push(
 			after('getUser', UserStore, (_, user) => {
 				const store = useUsersDecorationsStore.getState();
@@ -59,6 +60,8 @@ export default {
 				if (ReactNative.Platform.OS === 'ios' && avatarDecoration?.asset?.startsWith('file://')) return true;
 			})
 		);
+
+		useUsersDecorationsStore.getState().fetch(UserStore.getCurrentUser().id, true);
 	},
 	onUnload: () => {
 		patches.forEach((unpatch) => unpatch());
